@@ -3,17 +3,47 @@ import Header from './components/Header';
 import Main from './components/Main';
 import Features from './components/Features';
 import Footer from './components/Footer';
+import Calendar from './components/Calendar';
+import Details from './components/Details';
+import FetchData from './service/FetchData';
 import './style.css';
 
-function App() {
-  return (
-    <React.Fragment>
-      <Header />
-      <Main />
-      <Features />
-      <Footer />
-    </React.Fragment>
-  );
+class App extends React.Component {
+  fetchData = new FetchData();
+  state = {
+    rocket: 'Falcon 1',
+    rocketFeatures: null,
+    rockets: []
+  };
+  componentDidMount() {
+    this.updateRocket();
+  };
+  updateRocket() {
+    this.fetchData.getRocket()
+      .then(data => {
+        this.setState({rockets: data.map(item => item.name)});
+        return data;
+      })
+      .then(data => data.find(item => item.name === this.state.rocket))
+      .then(rocketFeatures => this.setState({rocketFeatures}))
+  };
+  changeRocket = (rocket) => {
+    this.setState({
+      rocket
+    }, this.updateRocket);
+  };
+  render() {
+    return (
+      <React.Fragment>
+        {console.log(this.state.rocketFeatures)}
+        <Header rockets={this.state.rockets} changeRocket={this.changeRocket}/>
+        <Main rocket={this.state.rocket}/>
+        <Features rocketFeatures={this.state.rocketFeatures}/>
+  
+        <Footer />
+      </React.Fragment>
+    );
+  };
 }
 
 export default App;
